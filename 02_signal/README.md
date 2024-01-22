@@ -1,4 +1,4 @@
-## LZZ-WebSocket-Demo
+## LZZ-Signal-Demo
 基于Node.js的WebSocket服务器示例项目，使用nodejs-websocket和ws库来展示基本的WebSocket通信功能。
 
 

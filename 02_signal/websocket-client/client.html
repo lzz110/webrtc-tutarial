@@ -1,0 +1,92 @@
+<html>
+
+<body>
+  <h1>Websocket简易聊天</h1>
+  <div id="app">
+    <button id="joinRoomBtn">加入房间</button>
+    <button id="leaveRoomBtn" disabled>退出房间</button>
+    <input id="sendMsg" type="text" />
+    <button id="submitBtn">发送</button>
+  </div>
+</body>
+
+
+<script type="text/javascript">
+  //在页面显示聊天内容
+  function showMessage(str, type) {
+    var div = document.createElement("div");
+    div.innerHTML = str;
+    if (type == "enter") {
+      div.style.color = "blue";
+    } else if (type == "leave") {
+      div.style.color = "red";
+    }
+    document.body.appendChild(div);
+  }
+
+  // 定义websocket变量
+  var websocket; 
+  var joinRoomBtn = document.getElementById("joinRoomBtn");
+  var leaveRoomBtn = document.getElementById("leaveRoomBtn");
+
+  // 加入房间
+  document.getElementById("joinRoomBtn").onclick = function() {
+    
+    // 如果已经存在一个连接并且是打开状态，不重新创建新的连接
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+      console.log("WebSocket连接已存在");
+      return;
+    }
+    
+    //打开websocket连接
+    var port ='8010';
+    websocket = new WebSocket("ws://localhost:" + port);
+
+    websocket.onopen = function () {
+      console.log("websocket open---");
+      joinRoomBtn.disabled = true; 
+      leaveRoomBtn.disabled = false; 
+      websocket.send(JSON.stringify({ action: 'join', message: '加入了房间' }));
+      document.getElementById("submitBtn").onclick = function () {
+        var txt = document.getElementById("sendMsg").value;
+        if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+          alert("未创建WebSocket连接,请先点击加入房间");
+          return;
+        }
+        if (txt && websocket && websocket.readyState === WebSocket.OPEN) {
+          websocket.send(txt);
+        }
+        
+        document.getElementById('sendMsg').value = '';
+      };
+    };
+ 
+    //接收服务器返回的数据
+    websocket.onmessage = function (e) {
+      var mes = JSON.parse(e.data); // json格式
+      showMessage(mes.data, mes.type);
+    };
+
+    //关闭连接回调
+    websocket.onclose = function () {
+      console.log("websocket close---");
+    };
+
+  };
+  
+  // 退出房间
+  document.getElementById("leaveRoomBtn").onclick = function() {
+
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.send(JSON.stringify({ action: 'leave', message: '离开了房间' }));
+        
+        // 稍微延迟关闭连接
+        setTimeout(function() {
+            websocket.close();
+            joinRoomBtn.disabled = false; 
+            leaveRoomBtn.disabled = true; 
+        }, 100); 
+    }
+  };
+</script>
+</html>

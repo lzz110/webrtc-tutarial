@@ -1,0 +1,11 @@
+{
+  "name": "my-OneToOne-Demo",
+  "version": "1.0.0",
+  "description": "Simple One to One WebRTC demo",
+  "scripts": {
+    "start": "http-server --port 8080" 
+  },
+  "devDependencies": {
+    "http-server": "^14.1.0"
+  }
+}
